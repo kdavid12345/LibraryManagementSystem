@@ -9,7 +9,7 @@ namespace LibraryApp.Models
         public int Quantity { get; set; }
         public override string ToString()
         {
-            return $"{Id}: \"{Title}\" by {Author} (Quantity: {Quantity})";
+            return $"Book [{Id}]: \"{Title}\" by {Author} (Quantity: {Quantity})";
         }
     }
 }
