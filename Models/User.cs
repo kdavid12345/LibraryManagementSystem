@@ -4,7 +4,6 @@ namespace LibraryApp.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public List<Book> BorrowedBooks { get; set; } = new List<Book>();
 
         public override string ToString()
         {

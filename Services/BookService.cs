@@ -3,12 +3,12 @@ using LibraryApp.Models;
 
 namespace LibraryApp.Services
 {
-    public class LibraryService
+    public class BookService
     {
         private readonly BookRepository _repository;
         private readonly List<Book> _books;
 
-        public LibraryService()
+        public BookService()
         {
             _repository = new BookRepository();
             _books = _repository.LoadBooks();
@@ -26,6 +26,8 @@ namespace LibraryApp.Services
 
         public void AddBook(Book book)
         {
+            var newId = _books.Any() ? _books.Max(b => b.Id) + 1 : 1;
+            book.Id = newId;
             _books.Add(book);
             SaveChanges();
         }
@@ -68,28 +70,6 @@ namespace LibraryApp.Services
         private void SaveChanges()
         {
             _repository.SaveBooks(_books);
-        }
-
-        public bool BorrowBook(int id)
-        {
-            var book = GetBookById(id);
-            if (book == null || book.Quantity <= 0)
-                return false;
-
-            book.Quantity--;
-            SaveChanges();
-            return true;
-        }
-
-        public bool ReturnBook(int id)
-        {
-            var book = GetBookById(id);
-            if (book == null || book.Quantity >= book.OriginalQuantity)
-                return false;
-
-            book.Quantity++;
-            SaveChanges();
-            return true;
         }
     }
 }
