@@ -7,6 +7,7 @@ namespace LibraryApp.Data
     {
         private const string FilePath = "Data/lendings.json";
 
+        // Loads lending data from the JSON file
         public List<Lending> LoadLendings()
         {
             if (!File.Exists(FilePath))
@@ -16,6 +17,7 @@ namespace LibraryApp.Data
             return JsonSerializer.Deserialize<List<Lending>>(json) ?? new List<Lending>();
         }
 
+        // Saves lending data to the JSON file
         public void SaveLendings(List<Lending> lendings)
         {
             var json = JsonSerializer.Serialize(lendings, new JsonSerializerOptions { WriteIndented = true });

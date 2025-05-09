@@ -14,59 +14,70 @@ namespace LibraryApp.Services
             _books = _repository.LoadBooks();
         }
 
+        // Returns all books
         public List<Book> GetAllBooks()
         {
             return _books;
         }
 
+        // Returns the book with the specified ID (or null if not found)
         public Book? GetBookById(int id)
         {
             return _books.FirstOrDefault(b => b.Id == id);
         }
 
+        // Finds a book by title and author
+        public Book? FindBookByTitleAndAuthor(string? title, string? author)
+        {
+            return _books.FirstOrDefault(b =>
+                (string.IsNullOrWhiteSpace(title) || b.Title.Contains(title, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(author) || b.Author.Contains(author, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        // Adds a new book with a unique ID
         public void AddBook(Book book)
         {
-            var newId = _books.Any() ? _books.Max(b => b.Id) + 1 : 1;
-            book.Id = newId;
+            book.Id = _books.Any() ? _books.Max(b => b.Id) + 1 : 1;
             _books.Add(book);
             SaveChanges();
         }
 
-        public bool UpdateBook(int id, string? newTitle, string? newAuthor, int? newQuantity, int? newOriginalQuantity)
+
+        // Updates book details
+        public void UpdateBook(int id, string? newTitle, string? newAuthor, int? newQuantity, int? newOriginalQuantity)
         {
             var existing = GetBookById(id);
-            if (existing == null)
-                return false;
+            if (existing == null) return;
 
-            existing.Title = (newTitle != null) ? newTitle : existing.Title;
-            existing.Author = (newAuthor != null) ? newAuthor : existing.Author;
-            existing.Quantity = (int)((newQuantity != null) ? newQuantity : existing.Quantity);
-            existing.OriginalQuantity = (int)((newOriginalQuantity != null) ? newOriginalQuantity : existing.OriginalQuantity);
+            existing.Title = newTitle ?? existing.Title;
+            existing.Author = newAuthor ?? existing.Author;
+            existing.Quantity = newQuantity ?? existing.Quantity;
+            existing.OriginalQuantity = newOriginalQuantity ?? existing.OriginalQuantity;
 
             SaveChanges();
-            return true;
         }
 
-        public bool RemoveBook(int id)
+        // Removes the book with the specified ID (if found)
+        public void RemoveBook(int id)
         {
             var book = GetBookById(id);
-            if (book == null)
-                return false;
+            if (book == null) return;
 
             _books.Remove(book);
             SaveChanges();
-            return true;
         }
 
+        // Searches for books by title and/or author
         public List<Book> SearchBooks(string? title, string? author)
         {
             return _books
                 .Where(b =>
                     (title == null || b.Title.Contains(title, StringComparison.OrdinalIgnoreCase)) &&
-                    (author == null || b.Author.Contains(author, StringComparison.OrdinalIgnoreCase))
-                ).ToList();
+                    (author == null || b.Author.Contains(author, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
         }
 
+        // Saves current book list to storage
         private void SaveChanges()
         {
             _repository.SaveBooks(_books);

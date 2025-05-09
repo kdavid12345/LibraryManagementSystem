@@ -7,6 +7,7 @@ namespace LibraryApp.Data
     {
         private const string FilePath = "Data/users.json";
 
+        // Loads user data from the JSON file
         public List<User> LoadUsers()
         {
             if (!File.Exists(FilePath))
@@ -16,6 +17,7 @@ namespace LibraryApp.Data
             return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
         }
 
+        // Saves user data to the JSON file
         public void SaveUsers(List<User> users)
         {
             var json = JsonSerializer.Serialize(users, new JsonSerializerOptions { WriteIndented = true });
