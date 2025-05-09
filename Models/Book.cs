@@ -2,11 +2,12 @@ namespace LibraryApp.Models
 {
     public class Book
     {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Author { get; set; } = string.Empty;
-        public int OriginalQuantity { get; set; }
-        public int Quantity { get; set; }
+        public required int Id { get; set; }
+        public required string Title { get; set; } = string.Empty;
+        public required string Author { get; set; } = string.Empty;
+        public required int OriginalQuantity { get; set; }
+        public required int Quantity { get; set; }
+
         public override string ToString()
         {
             return $"Book [{Id}]: \"{Title}\" by {Author} (Quantity: {Quantity})";

@@ -6,65 +6,47 @@ namespace LibraryApp.Services
     public class UserService
     {
         private readonly UserRepository _repository;
-        private readonly List<User> _users;
 
         public UserService()
         {
             _repository = new UserRepository();
-            _users = _repository.LoadUsers();
         }
 
         // Returns all users
         public List<User> GetAllUsers()
         {
-            return _users;
+            return _repository.GetAllUsers();
         }
 
         // Returns the user with the specified ID (or null if not found)
         public User? GetUserById(int id)
         {
-            return _users.FirstOrDefault(u => u.Id == id);
-        }
-
-        // Finds the first user whose name contains the given string
-        public User? FindUserByName(string name)
-        {
-            return _users.FirstOrDefault(u => u.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            return _repository.GetUserById(id);
         }
 
         // Adds a new user with a unique ID
-        public void AddUser(User user)
+        public void AddUser(string newName)
         {
-            var newId = _users.Any() ? _users.Max(u => u.Id) + 1 : 1;
-            user.Id = newId;
-            _users.Add(user);
-            SaveChanges();
+            _repository.AddUser(newName);
         }
 
         // Removes the user with the specified ID (if found)
         public void RemoveUser(int id)
         {
-            var user = GetUserById(id);
-            if (user == null) return;
-
-            _users.Remove(user);
-            SaveChanges();
+            _repository.RemoveUser(id);
         }
 
         // Updates the name of the user with the given ID (if found)
         public void UpdateUser(int id, string newName)
         {
-            var user = GetUserById(id);
-            if (user == null) return;
-
-            user.Name = newName;
-            SaveChanges();
+            _repository.UpdateUser(id, newName);
         }
 
-        // Saves current user list to storage
-        private void SaveChanges()
+        // Finds the first user whose name contains the given string
+        public User? FindUserByName(string name)
         {
-            _repository.SaveUsers(_users);
+            List<User> users = _repository.GetAllUsers();
+            return users.FirstOrDefault(u => u.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

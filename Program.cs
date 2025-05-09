@@ -3,9 +3,9 @@ using LibraryApp.Services;
 
 class Program
 {
-    private static BookService _bookService = new BookService();
-    private static UserService _userService = new UserService();
-    private static LendingService _lendingService = new LendingService();
+    private static readonly BookService _bookService = new();
+    private static readonly UserService _userService = new();
+    private static readonly LendingService _lendingService = new();
 
     static void Main()
     {
@@ -65,17 +65,18 @@ class Program
                     string? addAuthor = Console.ReadLine();
                     Console.Write("Quantity: ");
                     string? addQtyInput = Console.ReadLine();
-                    if (!string.IsNullOrWhiteSpace(addTitle) && !string.IsNullOrWhiteSpace(addAuthor) && int.TryParse(addQtyInput, out int addQty))
+
+                    if (!string.IsNullOrWhiteSpace(addTitle) &&
+                        !string.IsNullOrWhiteSpace(addAuthor) &&
+                        int.TryParse(addQtyInput, out int addQty))
                     {
                         if (ShowConfirmationMessage("Are you sure you want to add this book?"))
                         {
-                            _bookService.AddBook(new Book { Title = addTitle, Author = addAuthor, Quantity = addQty, OriginalQuantity = addQty });
+                            _bookService.AddBook(addTitle, addAuthor, addQty, addQty);
                             Console.WriteLine("Book added successfully.");
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
                     }
                     else
                     {
@@ -89,17 +90,20 @@ class Program
                     Console.WriteLine("Current books in the library: ");
                     foreach (var bk in _bookService.GetAllBooks())
                         Console.WriteLine(bk);
+
                     Console.Write("\nEnter book title to update: ");
                     string? oldTitle = Console.ReadLine();
                     Console.Write("Enter the author (leave empty to skip): ");
                     string? oldAuthor = Console.ReadLine();
+
                     var bookToUpdate = _bookService.FindBookByTitleAndAuthor(oldTitle, oldAuthor);
                     if (bookToUpdate == null)
                     {
                         ShowError("Book not found.");
                         break;
                     }
-                    Console.WriteLine("Book found: " + bookToUpdate);
+                    Console.WriteLine($"Book found: {bookToUpdate}");
+
                     Console.Write("New Title (leave empty to skip): ");
                     string? newTitle = Console.ReadLine();
                     if (string.IsNullOrWhiteSpace(newTitle)) newTitle = null;
@@ -108,6 +112,7 @@ class Program
                     if (string.IsNullOrWhiteSpace(newAuthor)) newAuthor = null;
                     Console.Write("New Quantity (leave empty to skip): ");
                     var newQtyInput = Console.ReadLine();
+
                     if (!string.IsNullOrWhiteSpace(newQtyInput))
                     {
                         if (int.TryParse(newQtyInput, out int newQty) && newQty >= 0)
@@ -120,9 +125,7 @@ class Program
                                 Console.WriteLine("Book updated successfully.");
                             }
                             else
-                            {
                                 Console.WriteLine("Operation cancelled.");
-                            }
                         }
                         else
                         {
@@ -139,9 +142,7 @@ class Program
                             Console.WriteLine("Book updated successfully.");
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
                     }
                     break;
                 case "4":
@@ -150,25 +151,29 @@ class Program
                     Console.WriteLine("Current books in the library: ");
                     foreach (var bk in _bookService.GetAllBooks())
                         Console.WriteLine(bk);
+
                     Console.Write("Enter book title to remove: ");
                     string? removeTitle = Console.ReadLine();
                     Console.Write("Enter the author (leave empty to skip): ");
                     string? removeAuthor = Console.ReadLine();
+
                     var bookToRemove = _bookService.FindBookByTitleAndAuthor(removeTitle, removeAuthor);
                     if (bookToRemove != null)
                     {
-                        Console.WriteLine("Book found: " + bookToRemove);
+                        Console.WriteLine($"Book found: {bookToRemove}");
                         if (ShowConfirmationMessage("Are you sure you want to remove this book?"))
                         {
                             _bookService.RemoveBook(bookToRemove.Id);
                             Console.WriteLine("Book removed successfully.");
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
                     }
-                    else ShowError("Book not found.");
+                    else
+                    {
+                        ShowError("Book not found.");
+                        break;
+                    }
                     break;
                 case "5":
                     // Search for books based on filters
@@ -177,6 +182,7 @@ class Program
                     string? titleFilter = Console.ReadLine();
                     Console.Write("Search by author (leave empty to skip): ");
                     string? authorFilter = Console.ReadLine();
+
                     var searchMatchBooks = _bookService.SearchBooks(titleFilter, authorFilter);
                     foreach (var b in searchMatchBooks)
                         Console.WriteLine(b);
@@ -218,19 +224,22 @@ class Program
                     Console.WriteLine("--- Adding a user ---\n");
                     Console.Write("User Name: ");
                     string? addName = Console.ReadLine();
+
                     if (!string.IsNullOrWhiteSpace(addName))
                     {
                         if (ShowConfirmationMessage("Are you sure you want to add this user?"))
                         {
-                            _userService.AddUser(new User { Name = addName });
+                            _userService.AddUser(addName);
                             Console.WriteLine("User added successfully.");
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
                     }
-                    else ShowError("Invalid input!");
+                    else
+                    {
+                        ShowError("Invalid input!");
+                        break;
+                    }
                     break;
                 case "3":
                     // Update an existing user's name
@@ -239,6 +248,7 @@ class Program
                     string? oldName = Console.ReadLine();
                     Console.Write("New Name: ");
                     string? newName = Console.ReadLine();
+
                     var user = _userService.FindUserByName(oldName ?? "");
                     if (user != null)
                     {
@@ -250,19 +260,26 @@ class Program
                                 Console.WriteLine("User updated successfully.");
                             }
                             else
-                            {
                                 Console.WriteLine("Operation cancelled.");
-                            }
                         }
-                        else ShowError("Invalid input.");
+                        else
+                        {
+                            ShowError("Invalid input.");
+                            break;
+                        }
                     }
-                    else ShowError("User not found.");
+                    else
+                    {
+                        ShowError("User not found.");
+                        break;
+                    }
                     break;
                 case "4":
                     // Remove a user
                     Console.WriteLine("--- Removing a user ---\n");
                     Console.Write("Enter user name to remove: ");
                     string? removeName = Console.ReadLine();
+
                     var u = _userService.FindUserByName(removeName ?? "");
                     if (u != null)
                     {
@@ -272,21 +289,28 @@ class Program
                             Console.WriteLine("User removed successfully.");
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
                     }
-                    else ShowError("User not found.");
+                    else
+                    {
+                        ShowError("User not found.");
+                        break;
+                    }
                     break;
                 case "5":
                     // Search for users by name filter
                     Console.WriteLine("--- Finding a user ---\n");
                     Console.Write("Search by name: ");
                     string? nameFilter = Console.ReadLine();
+
                     var searchMatchUser = _userService.FindUserByName(nameFilter ?? "");
                     if (searchMatchUser != null)
                         Console.WriteLine(searchMatchUser);
-                    else ShowError("User not found.");
+                    else
+                    {
+                        ShowError("User not found.");
+                        break;
+                    }
                     break;
                 case "0": return;
                 default: ShowError("Invalid menu option."); break;
@@ -338,6 +362,7 @@ class Program
                     Console.WriteLine("--- Lendings of a user ---\n");
                     Console.WriteLine("User name: ");
                     string? userName = Console.ReadLine();
+
                     if (userName != null)
                     {
                         var chosenUser = _userService.FindUserByName(userName);
@@ -349,11 +374,13 @@ class Program
                         else
                         {
                             ShowError("User not found.");
+                            break;
                         }
                     }
                     else
                     {
                         ShowError("Invalid input.");
+                        break;
                     }
                     break;
                 case "5":
@@ -365,6 +392,7 @@ class Program
                     string? bookTitle = Console.ReadLine();
                     Console.Write("Book Author (leave empty to skip): ");
                     string? bookAuthor = Console.ReadLine();
+
                     var borrower = _userService.FindUserByName(borrowerName ?? "");
                     var bookToBorrow = _bookService.FindBookByTitleAndAuthor(bookTitle, bookAuthor);
                     if (borrower != null && bookToBorrow != null)
@@ -375,14 +403,19 @@ class Program
                             if (_lendingService.BorrowBook(borrower.Id, bookToBorrow.Id, DateTime.Now))
                                 Console.WriteLine("Book borrowed successfully.");
                             else
+                            {
                                 ShowError("Borrow failed. User may have too many active lendings or already borrowed this book.");
+                                break;
+                            }
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
                     }
-                    else ShowError("User or Book not found.");
+                    else
+                    {
+                        ShowError("User or Book not found.");
+                        break;
+                    }
                     break;
                 case "6":
                     // Returning a book
@@ -393,6 +426,7 @@ class Program
                     string? returnBookTitle = Console.ReadLine();
                     Console.Write("Book Author (leave empty to skip): ");
                     string? returnBookAuthor = Console.ReadLine();
+
                     var returner = _userService.FindUserByName(returnerName ?? "");
                     var bookToReturn = _bookService.FindBookByTitleAndAuthor(returnBookTitle, returnBookAuthor);
                     if (returner != null && bookToReturn != null)
@@ -403,15 +437,19 @@ class Program
                             if (_lendingService.ReturnBook(returner.Id, bookToReturn.Id))
                                 Console.WriteLine("Book returned successfully.");
                             else
+                            {
                                 ShowError("Return failed. No active lending found.");
+                                break;
+                            }
                         }
                         else
-                        {
                             Console.WriteLine("Operation cancelled.");
-                        }
-
                     }
-                    else ShowError("User or Book not found.");
+                    else
+                    {
+                        ShowError("User or Book not found.");
+                        break;
+                    }
                     break;
                 case "0": return;
                 default: ShowError("Invalid menu option."); break;
